@@ -1,6 +1,6 @@
-# Image-Recognition-as-a-Service<br />
+# Image-Recognition-as-a-Service
 2.1	Phase 1<br />
-![Images](image.jpg)
+![Images](image.jpg)<br />
 Figure 1: High-level overview of the Phase 1 architecture
 Our design hosts a Flask web server which is hosted on an Elastic Compute 2 (EC2) [6] instance in the web tier. Users submit repeated requests to the server, which routes them to the AWS Simple Queueing Service (SQS) [7] request queue, which is a first-in-first-out messaging queue service of AWS. According to the quantity of requests (images) in the SQS request queue, the web server in the web tier scales the app tier in and out by either generating more EC2 instances or terminating them. Scaling out and scaling in happens at the web tier and app tier respectively. For scaling purposes, we implemented a greedy approach. The approach was to create an app-tier EC2 instance for every 4 user requests in the SQS request queue. We set the maximum number of app instances that can be created to 19, by setting the number of worker nodes from 1 to 19. So, the maximum number of instances you can run at once is 20 (1 web-tier instance and 19 app-tier instances). The capping of number of EC2 instances to 20 was based on the maximum workload expectation for the service in the AWS free tier account. The app tier EC2 instances swiftly consume the user image from the request queue and perform image recognition. The SQS response queue is used to send the key value pairs of the image name as key and the object recognised as value, back to the web server in the web tier where the recognition result is rendered. For persistence, the outcomes and original photos are kept in two different AWS Simple Storage Service (S3) [8] Input and Output buckets.
 
